@@ -1,0 +1,65 @@
+form input {
+	width: 40%;
+	display: inline-block;
+	margin: 10px 0px;
+	padding:12px 20px;
+	
+}
+
+form input:focus{
+	border: 3px solid #555;
+}
+
+div {
+    border-radius: 5px;
+    background-color: #f2f2f2;
+    padding: 20px;
+}
+
+section.message {
+	border: 3px dashed   #660000;	
+}
+
+.titleread{font-style: italic;}
+.authorread{font-weight: bold;}
+.eye{
+	border: 1px groove #ddd;
+}
+
+textarea{
+	height: 100px;
+	width: 200px;
+}
+table{width: 75%;
+	background: #a3a3c2;}
+	
+th{border:1px solid #ddd}
+
+a{color: black;}
+
+a:hover {
+    text-decoration: underline;
+	color:blue;
+}
+
+.tab{
+	display:inline-block;
+	width: 17%;
+	text-align: center;	
+	font-family: Arial;
+	font-weight: bold;
+}
+.titlenote{
+	display:inline-block;
+	width: 150px;
+}
+
+.authonote{
+	display: inline-block;
+	width: 100px;
+}
+
+.timenote{
+	display:inline-block;
+	width: 400px;
+}

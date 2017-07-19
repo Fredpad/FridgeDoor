@@ -1,0 +1,17 @@
+
+<table>
+	<tr>
+		<th>Title</th>
+		<th>Author</th>
+		<th>Date</th>
+	</tr>
+	{{#each notes}}
+	<tr>
+		
+	   <th><span class="titlenote"><a href="/note/{{_id}}">{{title}}</a></span> </th>
+	   <th><span class="authonote">{{author}}</span> </th>
+	   <th><span class="timenote">{{datetime}} </span> </th>
+		
+	</tr>
+	{{/each}}
+</table>

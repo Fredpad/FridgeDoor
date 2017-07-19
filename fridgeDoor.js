@@ -1,32 +1,106 @@
-
 var express = require('express');
-var app = express();
-app.use(express.static('public'));
+var exphbs  = require('express-handlebars');
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-//handlebars variables
-var fs = require('fs');
-var handlebars = require('handlebars');
-var source = fs.readFileSync("notes.handlebars", 'utf8');
-var template = handlebars.compile(source);
-var context = {author: "", title: "", datetime: "", content: ""};
+var app = express();
 
-app.post('/note_form', urlencodedParser, function(req, res) {
-    res.send(createHtmlMessage(req.body));
+const DataStore = require('nedb');
+const db = new DataStore({filename: __dirname + '/noteDB', autoload: true});
+var commonmark = require('commonmark');
+var reader = new commonmark.Parser();
+var writer = new commonmark.HtmlRenderer();
+var sticky = {author: "", title: "", datetime: "", datetimeInt: "", content: ""};
+
+app.engine('handlebars', exphbs({defaultLayout: 'main'}));
+app.set('view engine', 'handlebars');
+app.use(express.static(__dirname + '/public'));
+
+ 
+app.post('/note', urlencodedParser, function (req, res) {
+    res.render('note', createHtmlMessage(req.body));
 });
 
+app.get('/', function(req, res){
+	sortNotes(res);
+});
+
+app.get('/form', function(req, res){
+	res.render('noteForm');	
+});
+
+
+app.get('/delete', function(req, res){	
+	deleteNotes(res);	
+});
+
+app.post('/delete_notes', urlencodedParser, function(req, res){
+let trash = Object.keys(req.body);
+for(var i in trash)
+	 {db.remove({"_id": trash[i]}, { multi: true }, 
+    function (err, gone) {
+        console.log("removed " + gone);
+});}
+
+res.redirect("/");
+});
+
+
+app.get('/note/:noteID', function(req, res){
+	let id = req.params.noteID;
+	db.find({"_id": id}, function(err, docs){
+		if (err) {
+        console.log("something is wrong");
+    } else {
+        res.render('note', docs[0]);}
+	})
+	
+});
 function createHtmlMessage(info) {
-    context.author = info.user_author;
-	context.title = info.user_title;
-	context.content = info.user_content;
-	context.datetime = 	new Date();
-	return template(context);
+    sticky.author = info.user_author;
+	sticky.title = info.user_title;
+	
+	let parsed = reader.parse(info.user_content);
+	let message = writer.render(parsed);
+	
+	sticky.content = `${message}`;
+	sticky.datetime = new Date();
+	sticky.datetimeInt = sticky.datetime.valueOf();	
+	storeNote(sticky);
+	return sticky;
 }
 
-const host = '127.0.0.1';
-const port = '5555';
-app.listen(port, host, function () {
-    console.log("fridgeDoor.js app listening on IPv4: " + host +
-	":" + port);
-});
+function sortNotes(app){
+	db.find({}).sort({"datetimeInt": -1}).exec(function(err,docs){
+			if (err) {
+			console.log("something is wrong");
+		} else {
+			
+			app.render('allNotes', {notes: docs});}	});
+		
+}
+
+
+
+function storeNote(note){
+	db.insert(note, function(err, Note) {
+	if(err) {
+		console.log("Something went wrong when writing");
+		console.log(err);
+	} else {
+		console.log("Added " + Note.title + " docs");}});
+}
+
+
+
+function deleteNotes(app){
+	db.find({}).sort({"datetimeInt": -1}).exec(function(err,docs){
+			if (err) {
+			console.log("something is wrong");
+		} else {
+			
+			app.render('deleteForm', {notes: docs});}		});
+		
+}
+
+app.listen(5555);

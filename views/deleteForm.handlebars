@@ -1,0 +1,22 @@
+<form action="/delete_notes" method ="post">
+<table >
+	<tr>
+		<th>Delete</th>
+		<th><span class="titlenote">Title</span> </th>
+		<th><span class="authonote">Author</span> </th>
+		<th><span class="timenote">Date</span> </th>
+	</tr>
+	{{#each notes}}
+	<tr>
+	<th><input type="checkbox" name="{{_id}}"></th>	
+	   <th><span class="titlenote"><a href="/note/{{_id}}">{{title}}</a></span> </th>
+	   <th><span class="authonote">{{author}}</span> </th>
+	   <th><span class="timenote">{{datetime}} </span> </th>
+		
+	</tr>
+	{{/each}}
+
+</table>
+<button type = "submit">Delete</button>
+</form>
+
